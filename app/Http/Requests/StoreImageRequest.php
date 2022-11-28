@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\File;
 
 class StoreImageRequest extends FormRequest
 {
@@ -13,7 +14,7 @@ class StoreImageRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +25,11 @@ class StoreImageRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'image' => [
+                'required',
+                File::image(),
+                'mimes:jpg'
+            ]
         ];
     }
 }

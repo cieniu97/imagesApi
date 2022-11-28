@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-axios@3.5.2/dist/vue-axios.esm.min.js"></script>
+
+</head>
+<body style="padding:0;margin:0;display: grid; place-items: center;" >
+
+    <div id="app" style="height: 95vh; width: 95vw;margin-top: 5vh; ">
+        <div style="height:85vh; display:flex; justify-content:center;" >
+         
+        <!-- If I set object-fit:cover then pictures are rounded and fited to screen but images can be cut on portriat mode.
+            If I set object-fit:contain then there is always whole image but there are no rounded corners  -->
+         <img :src="images[activeImage]" alt="" @touchstart="touchStarted" @touchend="touchEnded" style="max-width:100%; object-fit: cover; border-radius: 25px;">
+
+            
+
+        </div>
+        <div style="height: 10vh; display: flex; justify-content: space-between; align-items: center;padding-right: 20px; padding-left: 20px;">
+            <div style="width:10vw; display:flex; justify-content:space-around">
+            <img src="/layout/arrow-left.png" @click="previousImage" alt="Previous" style="cursor: pointer; padding: 5px; height: 2rem;">
+            <img src="/layout/arrow-right.png" @click="nextImage" alt="Next" style="cursor: pointer; padding: 5px; height: 2rem;">
+            </div>
+            <div>
+                <span style="color: #4faa6e; font-size: 2rem; font-family: stolzl;"><b>{{ parseInt(activeImage)+1 }}</b></span> <span style="color: #e7e3e5;font-size: 2rem;font-family: stolzl;">/{{images.length}}</span>
+            </div>
+            
+        </div>
+        
+    </div>
+    <script>
+
+        Vue.createApp({
+            data(){
+                return{
+                    images: [
+                    "https://static.fajnyzwierzak.pl/media/uploads/media_image/original/wpis/785/dog-niemiecki.jpg",
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKr5wT7rfkjkGvNeqgXjBmarC5ZNoZs-H2uMpML8O7Q4F9W-IlUQibBT6IPqyvX45NOgw&usqp=CAU",
+                    "https://i.natgeofe.com/n/548467d8-c5f1-4551-9f58-6817a8d2c45e/NationalGeographic_2572187_square.jpg",
+                    "https://images.unsplash.com/photo-1611915387288-fd8d2f5f928b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxleHBsb3JlLWZlZWR8MXx8fGVufDB8fHx8&w=1000&q=80",
+                    ],
+                    activeImage:0,
+                    position:0,
+                };
+            },
+            methods:{
+                nextImage(){
+                    this.activeImage+=1;
+                    if (this.activeImage >= this.images.length){
+                        this.activeImage = this.images.length-1;
+                    }
+                },
+                previousImage(){
+                    this.activeImage-=1;
+                    if (this.activeImage < 0 ){
+                        this.activeImage = 0;
+                    }
+                },
+                startTimer(){
+                    setInterval(this.nextImage, 5000);
+                },
+                touchStarted(touchEvent){
+                    this.position = touchEvent.changedTouches[0].clientX;
+                },
+                touchEnded(touchEvent){
+                    if(touchEvent.changedTouches[0].clientX < this.position){
+                        this.nextImage();
+                    }
+                    else{
+                        this.previousImage();
+                    }
+                }
+            },
+            mounted(){
+                this.startTimer()
+                if (localStorage.activeImage) {
+                    this.activeImage = localStorage.activeImage;
+                }
+                vue-axios.get('/api/v1/images').then(response => (alert(response)))
+                
+            },
+            watch: {
+                activeImage(newActiveImage) {
+                    localStorage.activeImage = newActiveImage;
+                }
+            }
+        }).mount('#app');
+    </script>
+    
+</body>
+</html>
